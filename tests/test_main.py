@@ -1,5 +1,6 @@
-import pytest
-from main import analyze_sentiment
+import os
+from main import analyze_sentiment, fetch_news
+
 
 def test_sentiment_positive():
     # Test unitario: ¿La IA reconoce palabras positivas?
@@ -7,14 +8,18 @@ def test_sentiment_positive():
     result = analyze_sentiment(title)
     assert result == "Positivo"
 
+
 def test_sentiment_negative():
     # Test unitario: ¿La IA reconoce palabras negativas?
     title = "This is a terrible and bad error"
-    analysis = TextBlob(title)
-    assert analysis.sentiment.polarity < 0
+    result = analyze_sentiment(title)
+    assert result == "Negativo/Neutro"
 
-def test_api_connection():
-    # Test de integración: Verificar que la API responde
-    import requests
-    response = requests.get("https://newsapi.org/")
-    assert response.status_code == 200
+
+def test_fetch_news_fallback():
+    if "NEWSAPI_KEY" in os.environ:
+        del os.environ["NEWSAPI_KEY"]
+
+    result = fetch_news("AI")
+    assert isinstance(result, list)
+    assert result, "Se espera que la función devuelva datos de ejemplo si no hay NEWSAPI_KEY"
